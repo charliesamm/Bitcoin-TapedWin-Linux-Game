@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitcoin TapedOut</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .game {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      width: 340px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 4px;
+      color: #f7931a;
+    }
+    .sub { color: #8b949e; font-size: 13px; margin-bottom: 18px; }
+    .balance {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 18px;
+    }
+    .balance span { color: #f7931a; }
+    .coin {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #f9a23c, #f7931a 55%, #d97706);
+      color: #fff;
+      font-size: 15px;
+      font-weight: bold;
+      border: 5px solid #b45309;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      transition: transform 0.08s;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    }
+    .coin:active { transform: scale(0.92); }
+    .shop { margin-bottom: 18px; }
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+    }
+    .item .name { font-size: 13px; }
+    .item .cost { color: #f7931a; font-size: 12px; }
+    button.buy {
+      background: #f7931a;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    button.buy:disabled { background: #484f58; cursor: not-allowed; }
+    .stats { color: #8b949e; font-size: 12px; }
+    .reset {
+      margin-top: 10px;
+      background: none;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      border-radius: 6px;
+      padding: 5px 12px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <h1>Bitcoin TapedOut</h1>
+    <div class="sub">Tap the coin. Get rich.</div>
+    <div class="balance">&#8383; <span id="balance">0</span></div>
+    <div class="coin" id="coin">TAP ME</div>
+
+    <div class="shop">
+      <div class="item">
+        <div><div class="name">Miner</div><div class="cost">&#8383; 15</div></div>
+        <button class="buy" id="buyMiner" data-cost="15">Buy</button>
+      </div>
+      <div class="item">
+        <div><div class="name">Farm</div><div class="cost">&#8383; 100</div></div>
+        <button class="buy" id="buyFarm" data-cost="100">Buy</button>
+      </div>
+    </div>
+
+    <div class="stats" id="stats">Mining: 0 / sec &nbsp;|&nbsp; Taps: 0</div>
+    <button class="reset" id="reset">Reset</button>
+  </div>
+
+  <script>
+    let balance = 0;
+    let taps = 0;
+    let miners = 0;
+    let farms = 0;
+
+    const balEl = document.getElementById('balance');
+    const coinEl = document.getElementById('coin');
+    const statsEl = document.getElementById('stats');
+
+    const MINER_COST = 15;
+    const FARM_COST = 100;
+
+    function format(n) {
+      if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return Math.floor(n).toString();
+    }
+
+    function render() {
+      balEl.textContent = format(balance);
+      document.getElementById('buyMiner').disabled = balance < MINER_COST;
+      document.getElementById('buyFarm').disabled = balance < FARM_COST;
+      const perSec = miners * 1 + farms * 5;
+      statsEl.innerHTML = 'Mining: ' + perSec + ' / sec &nbsp;|&nbsp; Taps: ' + taps;
+    }
+
+    coinEl.addEventListener('click', function () {
+      balance += 1;
+      taps += 1;
+      render();
+    });
+
+    document.getElementById('buyMiner').addEventListener('click', function () {
+      if (balance >= MINER_COST) { balance -= MINER_COST; miners += 1; render(); }
+    });
+
+    document.getElementById('buyFarm').addEventListener('click', function () {
+      if (balance >= FARM_COST) { balance -= FARM_COST; farms += 1; render(); }
+    });
+
+    document.getElementById('reset').addEventListener('click', function () {
+      balance = 0; taps = 0; miners = 0; farms = 0;
+      render();
+    });
+
+    setInterval(function () {
+      balance += miners * 1 + farms * 5;
+      render();
+    }, 1000);
+
+    render();
+  </script>
+</body>
+</html>
